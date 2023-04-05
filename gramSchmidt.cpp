@@ -28,8 +28,8 @@ int main() {
     srand(time(0));
 
     M m = M::Random();
-    // m.col(2) = m.col(1);
-    // m.col(3) = m.col(2);
+    m.col(2) = m.col(1); // Singular
+    m.col(3) = m.col(2);
     cout << "M =\n" << m << endl << endl;
 
     M q = M::Zero();
@@ -38,9 +38,7 @@ int main() {
     for (int j = 0; j < m.cols(); j++) {
         auto qrj = orthogonalize(m.col(j), q, j);
         r.col(j) = qrj.second;
-        if (qrj.second(j) > 2*eps) {
-            q.col(j) = qrj.first;
-        } else {
+        if (qrj.second(j) <= 2*eps) {
             r(j,j) = 0;
             for (int i = 0; i < m.cols(); i++) {
                 qrj = orthogonalize(V::Unit(i), q, j);
@@ -50,11 +48,14 @@ int main() {
                 }
             }
         }
+        q.col(j) = qrj.first;
     }
 
     cout << "Q =\n" << q << endl << endl;
     cout << "Q'Q =\n" << q.adjoint()*q << endl << endl;
     cout << "R =\n" << r << endl << endl;
     cout << "M-Q*R =\n" << m-q*r << endl << endl;
-    cout << "eps = " << eps << ", Error norm = " << (m-q*r).norm() << endl << endl;
+    cout << "eps = " << eps << ", FrobN of diff = " << (m-q*r).norm() << endl << endl;
+
+    // cout << "M-reduced QR product =\n" << m-q.leftCols(2)*r.topRows(2) << endl << endl;
 }
