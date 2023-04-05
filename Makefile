@@ -12,6 +12,9 @@ OPTI = $(CLANG) $(EIGEN) $(GNUPLOT) $(BOOST)
 scratch: scratch.cpp
 	$(OPTI) $^ -o $@
 
+gramSchmidt: gramSchmidt.cpp
+	$(OPTI) $^ -o $@
+
 eigenDecHermit: eigenDecHermit.cpp
 	$(OPTI) $^ -o $@
 
