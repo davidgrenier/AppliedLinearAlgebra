@@ -6,14 +6,30 @@ using namespace Eigen;
 using namespace std;
 using std::numbers::pi;
 
-typedef Matrix4d M;
-typedef Vector4d V;
-
 constexpr auto eps = numeric_limits<double>::epsilon();
 
-pair<V, V> orthogonalize(const V& v, const M& q, int j) {
-    V qj = v;
-    V rj = V::Zero();
+template<int m, int n>
+using M = Matrix<double, m, n>;
+template<int m>
+using V = Vector<double, m>;
+
+template<int m, int n>
+pair<V<m>, V<n>> classic(const V<m>& aj, const M<m,n>& q, int j) {
+    V<m> qj = aj;
+    V<n> rj = V<n>::Zero();
+    for (int i = 0; i < j; i++) {
+        rj(i) = q.col(i).dot(aj);
+        qj -= rj(i)*q.col(i);
+    }
+    rj(j) = qj.norm();
+    qj.normalize();
+
+    return make_pair(qj,rj);
+}
+
+template<int m, int n>
+pair<V<m>, V<n>> modified(V<m> qj, const M<m,n>& q, int j) {
+    V<n> rj = V<n>::Zero();
     for (int i = 0; i < j; i++) {
         rj(i) = q.col(i).dot(qj);
         qj -= rj(i)*q.col(i);
@@ -24,38 +40,43 @@ pair<V, V> orthogonalize(const V& v, const M& q, int j) {
     return make_pair(qj,rj);
 }
 
-int main() {
-    srand(time(0));
+template<int m, int n, typename Ortho>
+pair<M<m,n>, M<n,n>> QR(const M<m,n>& a, const Ortho& o) {
+    M<m,n> q = M<m,n>::Zero();
+    M<n,n> r = M<n,n>::Zero();
 
-    M m = M::Random();
-    m.col(2) = m.col(1); // Singular
-    m.col(3) = m.col(2);
-    cout << "M =\n" << m << endl << endl;
-
-    M q = M::Zero();
-    M r = M::Zero();
-
-    for (int j = 0; j < m.cols(); j++) {
-        auto qrj = orthogonalize(m.col(j), q, j);
+    for (int j = 0; j < n; j++) {
+        auto qrj = o(a.col(j), q, j);
         r.col(j) = qrj.second;
-        if (qrj.second(j) <= 2*eps) {
+        for (int i = 0; qrj.second(j) <= 2*eps && i < n; i++) {
             r(j,j) = 0;
-            for (int i = 0; i < m.cols(); i++) {
-                qrj = orthogonalize(V::Unit(i), q, j);
-                if (qrj.second(j) > 2*eps) {
-                    q.col(j) = qrj.first;
-                    break;
-                }
-            }
+            qrj = o(Vector<double, m>::Unit(i), q, j);
         }
         q.col(j) = qrj.first;
     }
 
-    cout << "Q =\n" << q << endl << endl;
-    cout << "Q'Q =\n" << q.adjoint()*q << endl << endl;
-    cout << "R =\n" << r << endl << endl;
-    cout << "M-Q*R =\n" << m-q*r << endl << endl;
-    cout << "eps = " << eps << ", FrobN of diff = " << (m-q*r).norm() << endl << endl;
+    return make_pair(q,r);
+}
 
-    // cout << "M-reduced QR product =\n" << m-q.leftCols(2)*r.topRows(2) << endl << endl;
+template<int m, int n>
+void showQR(const M<m,n> a, const pair<M<m,n>, M<n,n>>& qr) {
+    auto q = qr.first;
+    auto r = qr.second;
+
+    cout << "Q =\n" << q << "\n\n";
+    cout << "R =\n" << r << "\n\n";
+    cout << "Q*Q =\n" << q.adjoint()*q << "\n\n";
+    cout << "A-QR =\n" << a-q*r << "\n\n";
+    cout << "FrobN of diff = " << (a-q*r).norm() << "\n\n";
+}
+
+int main() {
+    srand(time(0));
+    constexpr int m = 5, n = 3;
+
+    M<m,n> a = M<m,n>::Random();
+    cout << "A =\n" << a << "\n\n";
+
+    showQR(a, QR(a, classic<m,n>));
+    showQR(a, QR(a, modified<m,n>));
 }
