@@ -15,6 +15,9 @@ scratch: scratch.cpp
 legendreQR: legendreQR.cpp
 	$(OPTI) $^ -o $@
 
+pathological: pathological.cpp
+	$(OPTI) $^ -o $@
+
 gramSchmidt: gramSchmidt.cpp
 	$(OPTI) $^ -o $@
 
