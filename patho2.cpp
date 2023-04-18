@@ -1,12 +1,8 @@
 #include <iostream>
 #include <Eigen/Dense>
-#include "gnuplot-iostream.h"
 #include "myGram.h"
 
 int main() {
-    srand(time(0));
-    constexpr int m = 80;
-
     M<2,2> a {
         {0.70000, 1},
         {0.70001, 1}
