@@ -1,6 +1,6 @@
 WARN = -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wmissing-include-dirs -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wswitch-default -Wundef -Werror -Wno-unused-variable
-EXTRA = -Wold-style-cast -Wsign-conversion -Wctor-dtor-privacy -Wstrict-overflow=5 
-WARNPLUS = $(WARN) $(EXTRA) -Wlogical-op -Wstrict-null-sentinel# -Wnoexcept
+EXTRA = -Wold-style-cast -Wctor-dtor-privacy -Wstrict-overflow=5 
+WARNPLUS = $(WARN) $(EXTRA) -Wlogical-op -Wstrict-null-sentinel -Wsign-conversion# -Wnoexcept
 BOOST = -lboost_iostreams -lboost_system -lboost_filesystem
 GNUPLOT = -isystem/home/david/projects/gnuplot-iostream
 EIGEN = -isystem/usr/local/include/eigen3 -lopenblas -fopenmp
@@ -10,6 +10,9 @@ CLANG = c++ $(WARN) $(EXTRA) -std=c++20 -mavx2 -mfma -ffp-contract=fast -O3
 OPTI = $(CLANG) $(EIGEN) $(GNUPLOT) $(BOOST)
 
 scratch: scratch.cpp
+	$(OPTI) $^ -lX11 -o $@
+
+legenApprox: legenApprox.cpp
 	$(OPTI) $^ -o $@
 
 legendreQR: legendreQR.cpp
