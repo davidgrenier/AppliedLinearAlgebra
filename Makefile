@@ -3,13 +3,16 @@ EXTRA = -Wold-style-cast -Wctor-dtor-privacy -Wstrict-overflow=5
 WARNPLUS = $(WARN) $(EXTRA) -Wlogical-op -Wstrict-null-sentinel -Wsign-conversion# -Wnoexcept
 BOOST = -lboost_iostreams -lboost_system -lboost_filesystem
 GNUPLOT = -isystem/home/david/projects/gnuplot-iostream
-EIGEN = -isystem/usr/local/include/eigen3 -lopenblas -fopenmp
+EIGEN = -isystem/usr/local/include/eigen3 #-lopenblas -fopenmp
 GPP = g++ $(WARN) -std=c++20 -O3
 CWARN = -Wall
-CLANG = c++ $(WARN) $(EXTRA) -std=c++20 -mavx2 -mfma -ffp-contract=fast -O3
+CLANG = c++ $(WARN) $(EXTRA) -std=c++20 -O0 #-mavx2 -mfma -ffp-contract=fast -O3
 OPTI = $(CLANG) $(EIGEN) $(GNUPLOT) $(BOOST)
 
 scratch: scratch.cpp
+	$(OPTI) $^ -o $@
+
+deterioration: deterioration.cpp
 	$(OPTI) $^ -lX11 -o $@
 
 legenApprox: legenApprox.cpp
