@@ -12,6 +12,9 @@ OPTI = $(CLANG) $(EIGEN) $(GNUPLOT) $(BOOST)
 scratch: scratch.cpp
 	$(OPTI) $^ -o $@
 
+houseHolderTest: houseHolderTest.cpp
+	$(OPTI) $^ -o $@
+
 deterioration: deterioration.cpp
 	$(OPTI) $^ -lX11 -o $@
 
