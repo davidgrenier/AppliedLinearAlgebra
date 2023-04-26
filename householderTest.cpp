@@ -10,9 +10,7 @@ int main() {
     constexpr int m = 6, n = 4;
     M<m,n> a = M<m,n>::Random();
     cout << "A =\n" << a << "\n\n";
-    auto qr = QRh(a);
-    auto q = qr.first;
-    auto r = qr.second;
+    auto [q,r] = QRh(a);
     cout << "Q =\n" << q << "\n\n";
     cout << "R =\n" << r << "\n\n";
     M<m,n> zer = a-q*r;

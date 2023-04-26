@@ -10,8 +10,7 @@ using V = Vector<double, m>;
 
 template<int m, int n>
 void showQR(const M<m,n> a, const pair<M<m,n>, M<n,n>>& qr) {
-    auto q = qr.first;
-    auto r = qr.second;
+    auto [q,r] = qr;
 
     cout << "Q =\n" << q << "\n\n";
     cout << "R =\n" << r << "\n\n";

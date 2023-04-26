@@ -43,13 +43,9 @@ pair<M<m,n>, M<n,n>> QR(const M<m,n>& a, const Ortho& ortho) {
     M<n,n> r = M<n,n>::Zero();
 
     for (int j = 0; j < n; j++) {
-        auto qrj = ortho(a.col(j), q, j);
-        r.col(j) = qrj.second;
-        // for (int i = 0; qrj.second(j) <= 2*eps && i < n; i++) {
-        //     r(j,j) = 0;
-        //     qrj = ortho(Vector<double, m>::Unit(i), q, j);
-        // }
-        q.col(j) = qrj.first;
+        auto [qj,rj] = ortho(a.col(j), q, j);
+        r.col(j) = rj;
+        q.col(j) = qj;
     }
 
     return make_pair(q,r);
