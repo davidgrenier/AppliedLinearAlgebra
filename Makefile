@@ -19,6 +19,12 @@ COMPILE = $(CLANG) -std=c++20 $(OPTI) $(WARN) $(EIGEN) $(GNUPLOT) $(BOOST)
 scratch: scratch.cpp
 	$(COMPILE) $^ -o $@
 
+variadicTemplate: variadicTemplate.cpp
+	$(COMPILE) $^ -o $@
+
+cosApprox: cosApprox.cpp
+	$(COMPILE) $^ -o $@
+
 approx: approx.cpp
 	$(COMPILE) $^ -o $@
 
