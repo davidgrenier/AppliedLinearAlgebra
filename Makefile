@@ -19,6 +19,9 @@ COMPILE = $(CLANG) -std=c++20 $(OPTI) $(WARN) $(EIGEN) $(GNUPLOT) $(BOOST)
 scratch: scratch.cpp
 	$(COMPILE) $^ -o $@
 
+approx: approx.cpp
+	$(COMPILE) $^ -o $@
+
 leastSquarePoly: leastSquarePoly.cpp
 	$(COMPILE) $^ -o $@
 

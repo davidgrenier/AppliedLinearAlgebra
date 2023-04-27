@@ -5,6 +5,7 @@ using namespace std;
 
 using Vx = VectorXd;
 using Mx = MatrixXd;
+using Ax = ArrayXd;
 template<int m, int n>
 using M = Matrix<double, m, n>;
 template<int m>
