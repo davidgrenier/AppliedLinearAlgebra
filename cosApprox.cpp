@@ -8,39 +8,73 @@
 
 using std::numbers::pi;
 
-int main() {
-
-    constexpr int m = 50;
-    constexpr int n = 12;
-    A<m> xs = A<m>::LinSpaced(0,1);
-
+template<int m, int n>
+M<m,n> vander(double low, double high) {
+    A<m> xs = A<m>::LinSpaced(low,high);
     M<m,n> v;
     for (int i = 0; i < n; i++)
         v.col(i) = xs.pow(i);
+    return v;
+}
 
+template<int m, int n>
+V<n> normal(const M<m,n>& a, const V<m>& b) {
+    return (a.adjoint()*a).ldlt().solve(a.adjoint()*b);
+}
+
+template<int m, int n>
+V<n> eigenSolve(const M<m,n>& a, const V<m>& b) {
+    return HouseholderQR<M<m,n>>{a}.solve(b);
+}
+
+template<int m, int n>
+V<n> hhQRSolve(const M<m,n>& a, const V<m>& b) {
+    auto [q,r] = thinQRh(a);
+    return r.template triangularView<Upper>().solve(q.adjoint()*b);
+}
+
+template<int m, int n>
+V<n> normalRRSolve(const M<m,n>& a, const V<m>& b) {
+    auto [q,r] = thinQRh(a);
+    return (r.adjoint()*r).ldlt().solve(a.adjoint()*b);
+}
+
+template<int m, int n>
+V<n> luOrthProjSolve(const M<m,n>& a, const V<m>& b) {
+    auto [q,r] = thinQRh(a);
+    return FullPivLU<M<m,n>>{a}.solve(q*(q.adjoint()*b));
+}
+
+template<int m, int n>
+V<n> gramQRSolve(const M<m,n>& a, const V<m>& b) {
+    auto [q,r] = QRm(a);
+    return r.template triangularView<Upper>().solve(q.adjoint()*b);
+}
+
+template<int m, int n>
+V<n> svdSolve(const M<m,n>& a, const V<m>& b) {
+    BDCSVD<Mx> svd(Mx{a}, ComputeThinU | ComputeThinV);
+    return svd.solve(b);
+}
+
+int main() {
+    constexpr int m = 50;
+    constexpr int n = 12;
+
+    auto v = vander<m,n>(0,1);
+
+    A<m> xs = v.col(1);
     V<m> b = cos(xs*4);
     
     constexpr int methods = 7;
     M<n,methods> cs = M<n,methods>::Zero();
-    cs.col(0) = (v.adjoint()*v).ldlt().solve(v.adjoint()*b);
-
-    HouseholderQR<M<m,n>> qre{v};
-    cs.col(1) = qre.solve(b);
-
-    auto [q,r] = thinQRh(v);
-    cs.col(2) = r.triangularView<Upper>().solve(q.adjoint()*b);
-
-    cs.col(3) = (r.adjoint()*r).ldlt().solve(v.adjoint()*b);
-    FullPivLU<M<m,n>> lu{v};
-    cs.col(4) = lu.solve(q*q.adjoint()*b);
-
-
-    auto [qg, rg] = QRm(v);
-    cs.col(5) = rg.triangularView<Upper>().solve(qg.adjoint()*b);
-
-    Mx forSvd{v};
-    BDCSVD<Mx> svd(forSvd, ComputeThinU | ComputeThinV);
-    cs.col(6) = svd.solve(b);
+    cs.col(0) = normal(v, b);
+    cs.col(1) = eigenSolve(v, b);
+    cs.col(2) = hhQRSolve(v, b);
+    cs.col(3) = normalRRSolve(v, b);
+    cs.col(4) = luOrthProjSolve(v, b);
+    cs.col(5) = gramQRSolve(v, b);
+    cs.col(6) = svdSolve(v, b);
 
     cout.precision(11);
     Array<string,n+1,methods> show;
